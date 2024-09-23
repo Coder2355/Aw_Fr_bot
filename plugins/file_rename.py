@@ -228,6 +228,28 @@ async def process_queue():
                         progress=progress_for_pyrogram,
                         progress_args=("Upload Started.....", upload_msg, time.time())
                     )
-                elif media_type == "audio":
-                    await client.send_audio(
-                        message.chat.id,
+                elif type == "audio":
+                   await client.send_audio(
+                       message.chat.id,
+                       audio=metadata_path if _bool_metadata else file_path,
+                       caption=caption,
+                       thumb=ph_path,
+                       duration=duration,
+                       progress=progress_for_pyrogram,
+                       progress_args=("Upload Started.....", upload_msg, time.time())
+                    )
+             except Exception as e:
+                 os.remove(file_path)
+                if ph_path:
+                   os.remove(ph_path)
+                if metadata_path:
+                   os.remove(metadata_path)
+                return await upload_msg.edit(f"Error: {e}")
+
+             await download_msg.delete() 
+             if ph_path:
+                os.remove(ph_path)
+             if file_path:
+                os.remove(file_path)
+             if metadata_path:
+                os.remove(metadata_path)
