@@ -1,6 +1,6 @@
 from pyrogram import Client, filters
 from pyrogram.errors import FloodWait
-from pyrogram.types import InputMediaDocument, Message 
+from pyrogram.types import InputMediaDocument, Message
 from PIL import Image
 from datetime import datetime
 from hachoir.metadata import extractMetadata
@@ -143,7 +143,7 @@ async def process_queue():
                             del renaming_operations[file_id]
                             return
                         
-                        format_template = format_template.replace(quality_placeholder, "".join(extracted_qualities))   
+                        format_template = format_template.replace(quality_placeholder, "".join(extracted_qualities))
 
             if not os.path.isdir("Metadata"):
                 os.mkdir("Metadata")
@@ -158,9 +158,9 @@ async def process_queue():
                 path = await client.download_media(message=file, file_name=file_path, progress=progress_for_pyrogram, progress_args=("Download Started....", download_msg, time.time()))
             except Exception as e:
                 del renaming_operations[file_id]
-                return await download_msg.edit(e)  
+                return await download_msg.edit(e)
 
-            _bool_metadata = await AshutoshGoswami24.get_metadata(message.chat.id)  
+            _bool_metadata = await AshutoshGoswami24.get_metadata(message.chat.id)
         
             if _bool_metadata:
                 metadata_path = f"Metadata/{new_file_name}"
@@ -180,7 +180,7 @@ async def process_queue():
                         return await download_msg.edit(str(er) + "\n\n**Error**")
                 await download_msg.edit("**Metadata Added To The File Successfully ✅**\n\n__**Please Wait...**__\n\n`😈Trying To Downloading`")
             else:
-                await download_msg.edit("`😈Trying To Downloading`") 
+                await download_msg.edit("`😈Trying To Downloading`")
 
             duration = 0
             try:
@@ -206,7 +206,7 @@ async def process_queue():
             if ph_path:
                 Image.open(ph_path).convert("RGB").save(ph_path)
                 img = Image.open(ph_path)
-                img.resize((320, 320))
+                img = img.resize((320, 320))
                 img.save(ph_path, "JPEG")    
 
             try:
@@ -220,36 +220,38 @@ async def process_queue():
                         progress_args=("Upload Started.....", upload_msg, time.time())
                     )
                 elif media_type == "video":
-                    await client.send_document(
+                    await client.send_video(
                         message.chat.id,
-                        document=metadata_path if _bool_metadata else file_path,
+                        video=metadata_path if _bool_metadata else file_path,
                         thumb=ph_path,
                         caption=caption,
                         progress=progress_for_pyrogram,
                         progress_args=("Upload Started.....", upload_msg, time.time())
                     )
-                elif type == "audio":
-                   await client.send_audio(
-                       message.chat.id,
-                       audio=metadata_path if _bool_metadata else file_path,
-                       caption=caption,
-                       thumb=ph_path,
-                       duration=duration,
-                       progress=progress_for_pyrogram,
-                       progress_args=("Upload Started.....", upload_msg, time.time())
+                elif media_type == "audio":
+                    await client.send_audio(
+                        message.chat.id,
+                        audio=metadata_path if _bool_metadata else file_path,
+                        caption=caption,
+                        thumb=ph_path,
+                        duration=duration,
+                        progress=progress_for_pyrogram,
+                        progress_args=("Upload Started.....", upload_msg, time.time())
                     )
-             except Exception as e:
-                 os.remove(file_path)
+            except Exception as e:
+                os.remove(file_path)
                 if ph_path:
-                   os.remove(ph_path)
+                    os.remove(ph_path)
                 if metadata_path:
-                   os.remove(metadata_path)
+                    os.remove(metadata_path)
                 return await upload_msg.edit(f"Error: {e}")
 
-             await download_msg.delete() 
-             if ph_path:
+            await download_msg.delete()
+            if ph_path:
                 os.remove(ph_path)
-             if file_path:
+            if file_path:
                 os.remove(file_path)
-             if metadata_path:
+            if metadata_path:
                 os.remove(metadata_path)
+        finally:
+            media_queue.task_done()
