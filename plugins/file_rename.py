@@ -163,9 +163,7 @@ async def auto_rename_files(client, message):
 
     print(f"Original File Name: {file_name}")
     
-    
-
-# Check whether the file is already being renamed or has been renamed recently
+    # Check whether the file is already being renamed or has been renamed recently
     if file_id in renaming_operations:
         elapsed_time = (datetime.now() - renaming_operations[file_id]).seconds
         if elapsed_time < 10:
@@ -177,7 +175,6 @@ async def auto_rename_files(client, message):
 
     # Extract episode number and qualities
     episode_number = extract_episode_number(file_name)
-    
     print(f"Extracted Episode Number: {episode_number}")
     
     if episode_number:
@@ -206,6 +203,7 @@ async def auto_rename_files(client, message):
         file_path = f"downloads/{new_file_name}"
         file = message
 
+        # Step 1: Download the file
         download_msg = await message.reply_text(text="Trying To Download.....")
         try:
             path = await client.download_media(message=file, file_name=file_path, progress=progress_for_pyrogram, progress_args=("Download Started....", download_msg, time.time()))
@@ -214,32 +212,22 @@ async def auto_rename_files(client, message):
             del renaming_operations[file_id]
             return await download_msg.edit(e)  
 
+        # Step 2: Add Metadata (if applicable)
         _bool_metadata = await AshutoshGoswami24.get_metadata(message.chat.id)  
     
         if (_bool_metadata):
             metadata_path = f"Metadata/{new_file_name}"
             metadata = await AshutoshGoswami24.get_metadata_code(message.chat.id)
             if metadata:
-
-                await download_msg.edit("I Found Your Metadata🔥\n\n__Please Wait...__\n`Adding Metadata ⚡...`")
+                await download_msg.edit("Adding Metadata ⚡...")
                 cmd = f"""ffmpeg -i "{path}" {metadata} "{metadata_path}" """
-
-                process = await asyncio.create_subprocess_shell(
-                    cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
-                )
-
+                process = await asyncio.create_subprocess_shell(cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
                 stdout, stderr = await process.communicate()
                 er = stderr.decode()
+                if er:
+                    return await download_msg.edit(str(er) + "\n\n**Error**")
 
-                try:
-                    if er:
-                        return await download_msg.edit(str(er) + "\n\n**Error**")
-                except BaseException:
-                    pass
-            await download_msg.edit("**Metadata Added To The File Successfully ✅**\n\n__**Please Wait...**__\n\n`😈Trying To Downloading`")
-        else:
-            await download_msg.edit("`😈Trying To Downloading`") 
-
+        # Step 3: Get Thumbnail and Upload
         duration = 0
         try:
             metadata = extractMetadata(createParser(file_path))
@@ -257,7 +245,6 @@ async def auto_rename_files(client, message):
 
         if c_thumb:
             ph_path = await client.download_media(c_thumb)
-            print(f"Thumbnail downloaded successfully. Path: {ph_path}")
         elif media_type == "video" and message.video.thumbs:
             ph_path = await client.download_media(message.video.thumbs[0].file_id)
 
@@ -267,10 +254,9 @@ async def auto_rename_files(client, message):
             img.resize((320, 320))
             img.save(ph_path, "JPEG")    
 
-        
+        # Step 4: Upload the file
         try:
-            type = media_type  # Use 'media_type' variable instead
-            if type == "document":
+            if media_type == "document":
                 await client.send_document(
                     message.chat.id,
                     document=metadata_path if _bool_metadata else file_path,
@@ -279,16 +265,16 @@ async def auto_rename_files(client, message):
                     progress=progress_for_pyrogram,
                     progress_args=("Upload Started.....", upload_msg, time.time())
                 )
-            elif type == "video":
-                await client.send_document(
+            elif media_type == "video":
+                await client.send_video(
                     message.chat.id,
-                    document=metadata_path if _bool_metadata else file_path,
+                    video=metadata_path if _bool_metadata else file_path,
                     thumb=ph_path,
                     caption=caption,
                     progress=progress_for_pyrogram,
                     progress_args=("Upload Started.....", upload_msg, time.time())
                 )
-            elif type == "audio":
+            elif media_type == "audio":
                 await client.send_audio(
                     message.chat.id,
                     audio=metadata_path if _bool_metadata else file_path,
@@ -314,10 +300,3 @@ async def auto_rename_files(client, message):
         if metadata_path:
             os.remove(metadata_path)
 
-
-
-
-# PandaWep
-# Don't Remove Credit 🥺
-# Telegram Channel @PandaWep
-# Developer https://github.com/PandaWep
