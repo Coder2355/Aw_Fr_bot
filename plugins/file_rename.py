@@ -1,7 +1,17 @@
 
 from pyrogram import Client, filters
 from pyrogram.errors import FloodWait
-from pyrogram.types import InputMediaDocument, Message 
+from pyrogram.types import (
+    InlineKeyboardButton,
+    InputMediaDocument,
+    InlineKeyboardMarkup,
+    ForceReply,
+    CallbackQuery,
+    Message,
+    InputMediaPhoto,
+)
+from utils import check_verification, get_token
+from info import VERIFY, VERIFY_TUTORIAL, BOT_USERNAME 
 from PIL import Image
 from datetime import datetime
 from hachoir.metadata import extractMetadata
@@ -139,7 +149,18 @@ print(f"Extracted Episode Number: {episode_number}")
 
 
 @Client.on_message(filters.private & (filters.document | filters.video | filters.audio))
-async def auto_rename_files(client, message):    
+async def auto_rename_files(client, message): 
+    is_verified = await check_verification(client, message.from_user.id)
+    if not is_verified:
+        # Send verification message and return
+        verification_url = await get_token(client, message.from_user.id, f"https://t.me/{BOT_USERNAME}?start=")
+        await message.reply_text(
+            "⚠️You need to verify your account before you can use The Bot⚡. \n\n Please verify your account using the following link👇 \n\n If You Verify You Can use Our Bot without any limit for 1hour 💫:",
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton('🔗 Verify Now ☘️', url=verification_url)]
+            ])
+        )
+        return
     user_id = message.from_user.id
     format_template = await AshutoshGoswami24.get_format_template(user_id)
     media_preference = await AshutoshGoswami24.get_media_preference(user_id)
