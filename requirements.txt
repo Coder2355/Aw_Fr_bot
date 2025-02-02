@@ -1,5 +1,4 @@
 pyrogram==2.0.80
-TgCrypto
 motor
 dnspython
 hachoir
@@ -10,3 +9,6 @@ humanize
 pyromod
 ffmpeg-python
 Shortzy
+TgCrypto==1.2.5 
+
+ 
