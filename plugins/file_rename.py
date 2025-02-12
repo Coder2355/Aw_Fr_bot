@@ -147,9 +147,30 @@ filename = "Naruto Shippuden S01 - EP07 - 1080p [Dual Audio] @Madflix_Bots.mkv"
 episode_number = extract_episode_number(filename)
 print(f"Extracted Episode Number: {episode_number}")
 
+file_queue = asyncio.Queue()
+processing_count = 0
+MAX_CONCURRENT = 4  # Maximum concurrent file processing limit
 
-@Client.on_message(filters.private & (filters.document | filters.video | filters.audio))
-async def auto_rename_files(client, message): 
+
+
+async def process_next_file():
+    if not file_queue.empty() and processing_count < MAX_CONCURRENT:
+        next_message = await file_queue.get()
+        asyncio.create_task(auto_rename_files(next_message))
+
+@Client.on_message(filters.document | filters.video | filters.audio)
+async def handle_file(client, message: Message):
+    if processing_count < MAX_CONCURRENT:
+        asyncio.create_task(auto_rename_files(client, message))
+    else:
+        queue_position = file_queue.qsize() + 1  # Position in queue
+        await message.reply_text(f"⏳ Your file is added to the queue. Position: {queue_position}")
+        await file_queue.put(message)
+
+
+async def auto_rename_files(client, message):
+    global processing_count
+    processing_count += 1
     is_verified = await check_verification(client, message.from_user.id)
     if not is_verified:
         # Send verification message and return
@@ -321,6 +342,8 @@ async def auto_rename_files(client, message):
                     progress_args=("Upload Started.....", upload_msg, time.time())
                 )
         except Exception as e:
+            processing_count -= 1
+            await process_next_file()  
             os.remove(file_path)
             if ph_path:
                 os.remove(ph_path)
@@ -328,7 +351,9 @@ async def auto_rename_files(client, message):
                 os.remove(metadata_path)
             return await upload_msg.edit(f"Error: {e}")
 
-        await download_msg.delete() 
+        await download_msg.delete()
+        processing_count -= 1
+        await process_next_file()  
         if ph_path:
             os.remove(ph_path)
         if file_path:
