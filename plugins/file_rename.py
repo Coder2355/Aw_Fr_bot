@@ -350,16 +350,18 @@ async def auto_rename_files(client, message):
             if metadata_path:
                 os.remove(metadata_path)
             return await upload_msg.edit(f"Error: {e}")
+        finally:
+            
 
-        await download_msg.delete()
-        processing_count -= 1
-        await process_next_file()  
-        if ph_path:
-            os.remove(ph_path)
-        if file_path:
-            os.remove(file_path)
-        if metadata_path:
-            os.remove(metadata_path)
+            await download_msg.delete()
+            processing_count -= 1
+            await process_next_file()  
+            if ph_path:
+                os.remove(ph_path)
+            if file_path:
+                os.remove(file_path)
+            if metadata_path:
+                os.remove(metadata_path)
 
 
 
