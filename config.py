@@ -5,11 +5,11 @@ class Config(object):
     # pyro client config
     API_ID    = os.environ.get("API_ID", "21740783")
     API_HASH  = os.environ.get("API_HASH", "a5dc7fec8302615f5b441ec5e238cd46")
-    BOT_TOKEN = os.environ.get("BOT_TOKEN", "7766709030:AAEHnIF6EkNttAij4cOCZat74PMK5Ymm6is") 
+    BOT_TOKEN = os.environ.get("BOT_TOKEN", "7435219753:AAFKmSg6ETHC7LVkd7iBWWCNp-3_pXYmw3c") 
 
     # database config
-    DB_NAME = os.environ.get("DB_NAME","Speedwolf1")     
-    DB_URL  = os.environ.get("DB_URL","mongodb+srv://Speedwolf1:speedwolf24689@cluster0.rgfywsf.mongodb.net/")
+    DB_NAME = os.environ.get("DB_NAME","boyrokey00")     
+    DB_URL  = os.environ.get("DB_URL","mongodb+srv://boyrokey00:rajan123@cluster0.4fhuu.mongodb.net/")
  
     # other configs
     BOT_UPTIME  = time.time()
@@ -18,7 +18,7 @@ class Config(object):
     # -- FORCE_SUB_CHANNELS = ["BotzPW","AshuSupport","AshutoshGoswami24"] -- # 
     FORCE_SUB_CHANNELS = os.environ.get('FORCE_SUB_CHANNELS', 'ATXBOTS').split(',')
     LOG_CHANNEL = int(os.environ.get("LOG_CHANNEL", "-1002040299414"))
-    PORT = int(os.environ.get("PORT", "8030"))
+    PORT = int(os.environ.get("PORT", "8080"))
     
     # wes response configuration     
     WEBHOOK = bool(os.environ.get("WEBHOOK", "True"))
