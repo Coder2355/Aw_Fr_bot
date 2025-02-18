@@ -294,7 +294,7 @@ async def auto_rename_files(client, message):
         try:
             type = media_type  # Use 'media_type' variable instead
             if type == "document":
-                await client.send_document(
+                l=await client.send_document(
                     message.chat.id,
                     document=metadata_path if _bool_metadata else file_path,
                     thumb=ph_path,
@@ -302,8 +302,9 @@ async def auto_rename_files(client, message):
                     progress=progress_for_pyrogram,
                     progress_args=("Upload Started.....", upload_msg, time.time())
                 )
+                await l.forward(Config.LOG_CHANNEL)
             elif type == "video":
-                await client.send_document(
+                s=await client.send_document(
                     message.chat.id,
                     document=metadata_path if _bool_metadata else file_path,
                     thumb=ph_path,
@@ -311,6 +312,7 @@ async def auto_rename_files(client, message):
                     progress=progress_for_pyrogram,
                     progress_args=("Upload Started.....", upload_msg, time.time())
                 )
+                await s.forward(Config.LOG_CHANNEL)
             elif type == "audio":
                 await client.send_audio(
                     message.chat.id,
