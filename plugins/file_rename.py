@@ -149,7 +149,7 @@ print(f"Extracted Episode Number: {episode_number}")
 
 
 
-
+@Client.on_message((filters.video|filters.document|filters.audio) & filters.private)
 async def auto_rename_files(client, message):
     
     is_verified = await check_verification(client, message.from_user.id)
