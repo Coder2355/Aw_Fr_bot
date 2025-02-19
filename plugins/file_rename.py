@@ -152,6 +152,7 @@ print(f"Extracted Episode Number: {episode_number}")
 
 async def auto_rename_files(client, message):
     
+    is_verified = await check_verification(client, message.from_user.id)
     if not is_verified:
         # Send verification message and return
         verification_url = await get_token(client, message.from_user.id, f"https://t.me/{BOT_USERNAME}?start=")
@@ -229,7 +230,7 @@ async def auto_rename_files(client, message):
         file_path = f"downloads/{new_file_name}"
         file = message
 
-        download_msg = await message.reply_text(text="Trying To Download.....")
+        download_msg = await message.reply_text(text=f"<blockquote>Trying To Download.....</blockquote>", parse_mode="HTML")
         try:
             path = await client.download_media(message=file, file_name=file_path, progress=progress_for_pyrogram, progress_args=("Download Started....", download_msg, time.time()))
         except Exception as e:
